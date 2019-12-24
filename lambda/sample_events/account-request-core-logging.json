@@ -1,0 +1,76 @@
+{
+    "Records": [
+      {
+        "eventID": "6a7c749d12a30a6f14d4832d696c9ff7",
+        "eventName": "INSERT",
+        "eventVersion": "1.1",
+        "eventSource": "aws:dynamodb",
+        "awsRegion": "us-east-2",
+        "dynamodb": {
+          "ApproximateCreationDateTime": 1545172785,
+          "Keys": {
+            "id": {
+              "S": "aws-poc-tlz-log-archive@blizzard.com"
+            }
+          },
+          "NewImage": {
+            "createdAt": {
+              "S": "1545170196962"
+            },
+            "appName": {
+              "S": "core_logging"
+            },
+            "costCenter": {
+              "S": "NA"
+            },
+            "accountType": {
+              "S": "Core"
+            },
+            "cloudProvider": {
+              "S": "AWS"
+            },
+            "responsible": {
+              "S": "Seetarama Sarma"
+            },
+            "primaryVpcCidr": {
+              "S": "192.168.0.0/16"
+            },
+            "accountPrefix": {
+              "S": "tlz"
+            },
+            "secondaryVpcCidr": {
+              "S": "192.168.0.0/16"
+            },
+            "subAccountType": {
+              "S": "Core"
+            },
+            "id": {
+              "S": "aws-poc-tlz-log-archive@blizzard.com"
+            },
+            "cidrNotation": {
+              "N": "29"
+            },
+            "securityContact": {
+              "S": "aws-tlz-poc@blizzard.com"
+            },
+            "servicenowCase": {
+              "S": "555555"
+            },
+            "lob": {
+              "S": "core"
+            },
+            "envType": {
+              "S": "NA"
+            },
+            "reqId": {
+              "S": "de801bfa-538d-aed4-1cef-f894376ac2cd"
+            }
+          },
+          "SequenceNumber": "1000000000000793681109",
+          "SizeBytes": 260,
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        },
+        "eventSourceARN": "arn:aws:dynamodb:us-east-2:135872139627:table/OrgAccountRequest/stream/2018-12-18T21:01:59.406"
+      }
+    ]
+}

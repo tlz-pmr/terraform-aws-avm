@@ -1,0 +1,126 @@
+{
+  "description": "Automation for the tfe pre-baseline account creation",
+  "schemaVersion": "0.3",
+  "parameters": {
+    "AccountId": {
+      "type": "String",
+      "description": "(Required) AccountId"
+    },
+    "AdditionalInfo": {
+      "type": "String",
+      "description": "(Required) additional info in json string"
+    },
+    "AccountType": {
+      "type": "String",
+      "description": "(Required) AccountType"
+    }
+  },
+  "mainSteps": [
+    {
+      "name": "App_iam_assume_role_for_new_account",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Abort",
+      "maxAttempts": 3,
+      "timeoutSeconds": 120,
+      "inputs": {
+        "FunctionName": "avm-iam-managedpolicy-update-for-new-account",
+        "Payload": "{\"AccountId\": \"{{AccountId}}\" }"
+      },
+      "nextStep": "App_okta_create_groups"
+    },
+    {
+      "name": "App_okta_create_groups",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Continue",
+      "maxAttempts": 3,
+      "timeoutSeconds": 120,
+      "inputs": {
+        "FunctionName": "avm-okta-create-groups",
+        "Payload": "{\"AccountId\": \"{{AccountId}}\" }"
+      }
+    },
+    {
+      "name": "call_sub_document_based_on_account_type",
+      "action": "aws:branch",
+      "inputs": {
+        "Choices": [
+          {
+            "NextStep": "call_sub_document_for_app",
+            "Variable": "{{AccountType}}",
+            "EqualsIgnoreCase": "application"
+          },
+          {
+            "NextStep": "call_sub_document_for_core",
+            "Variable": "{{AccountType}}",
+            "EqualsIgnoreCase": "core"
+          },
+          {
+            "NextStep": "call_sub_document_for_non_app",
+            "Variable": "{{AccountType}}",
+            "EqualsIgnoreCase": "sandbox"
+          }
+        ]
+      }
+    },
+    {
+      "name": "call_sub_document_for_non_app",
+      "action": "aws:executeAutomation",
+      "onFailure": "Abort",
+      "inputs": {
+        "DocumentName": "tlz-avm-non-app-ssm-document",
+        "RuntimeParameters": {
+          "AccountId": [
+            "\"{{AccountId}}\""
+          ],
+          "AdditionalInfo": [
+            "{{AdditionalInfo}}"
+          ],
+          "AccountType": [
+            "\"{{AccountType}}\""
+          ]
+        }
+      },
+      "isEnd": true
+    },
+    {
+      "name": "call_sub_document_for_core",
+      "action": "aws:executeAutomation",
+      "onFailure": "Abort",
+      "inputs": {
+        "DocumentName": "tlz-avm-core-ssm-document",
+        "RuntimeParameters": {
+          "AccountId": [
+            "\"{{AccountId}}\""
+          ],
+          "AdditionalInfo": [
+            "{{AdditionalInfo}}"
+          ],
+          "AccountType": [
+            "\"{{AccountType}}\""
+          ]
+        }
+      },
+      "isEnd": true
+    },
+    {
+      "name": "call_sub_document_for_app",
+      "action": "aws:executeAutomation",
+      "onFailure": "Abort",
+      "inputs": {
+        "DocumentName": "tlz-avm-app-ssm-document",
+        "RuntimeParameters": {
+          "AccountId": [
+            "\"{{AccountId}}\""
+          ],
+          "AdditionalInfo": [
+            "{{AdditionalInfo}}"
+          ],
+          "AccountType": [
+            "\"{{AccountType}}\""
+          ]
+        }
+      },
+      "isEnd": true
+    }
+  ]
+}

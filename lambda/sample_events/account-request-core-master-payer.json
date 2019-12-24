@@ -1,0 +1,76 @@
+{
+    "Records": [
+      {
+        "eventID": "6a7c749d12a30a6f14d4832d696c9ff7",
+        "eventName": "INSERT",
+        "eventVersion": "1.1",
+        "eventSource": "aws:dynamodb",
+        "awsRegion": "us-west-2",
+        "dynamodb": {
+          "ApproximateCreationDateTime": 1545172785,
+          "Keys": {
+            "id": {
+              "S": "lz@tlz.com"
+            }
+          },
+          "NewImage": {
+            "createdAt": {
+              "S": "1545170196962"
+            },
+            "appName": {
+              "S": "master_payer"
+            },
+            "costCenter": {
+              "S": "NA"
+            },
+            "accountType": {
+              "S": "Core"
+            },
+            "cloudProvider": {
+              "S": "AWS"
+            },
+            "responsible": {
+              "S": "Drew Mossiant"
+            },
+            "primaryVpcCidr": {
+              "S": "172.16.1.0/24"
+            },
+            "accountPrefix": {
+              "S": "tlz"
+            },
+            "secondaryVpcCidr": {
+              "S": "172.16.1.0/24"
+            },
+            "subAccountType": {
+              "S": "Core"
+            },
+            "id": {
+              "S": "lz@tlz.com"
+            },
+            "cidrNotation": {
+              "N": "29"
+            },
+            "securityContact": {
+              "S": "ir@tlz.com"
+            },
+            "servicenowCase": {
+              "S": "555555"
+            },
+            "lob": {
+              "S": "Core"
+            },
+            "envType": {
+              "S": "NA"
+            },
+            "reqId": {
+              "S": "de801bfa-538d-aed4-1cef-f894376ac2cd"
+            }
+          },
+          "SequenceNumber": "1000000000000793681109",
+          "SizeBytes": 260,
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        },
+        "eventSourceARN": "arn:aws:dynamodb:us-west-2:135872139627:table/OrgAccountRequest/stream/2018-12-18T21:01:59.406"
+      }
+    ]
+}

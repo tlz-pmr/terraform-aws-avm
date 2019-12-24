@@ -1,0 +1,163 @@
+{
+  "description": "Automation for the tfe pre-baseline account creation",
+  "schemaVersion": "0.3",
+  "parameters": {
+    "AccountId": {
+      "type": "String",
+      "description": "(Required) AccountId"
+    },
+    "AdditionalInfo": {
+      "type": "String",
+      "description": "(Required) additional info in json string"
+    },
+    "AccountType": {
+      "type": "String",
+      "description": "(Required) AccountType"
+    }
+  },
+  "mainSteps": [{
+      "name": "App_target_account_delete_defaultvpcs",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Continue",
+      "maxAttempts": 3,
+      "timeoutSeconds": 120,
+      "inputs": {
+        "FunctionName": "avm-vpcs-delete-defaults",
+        "Payload": "{\"AccountId\": {{AccountId}} }"
+      },
+      "nextStep": "App_common_security_send_guardduty_invites"
+    },
+    {
+      "name": "App_common_security_send_guardduty_invites",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Continue",
+      "maxAttempts": 3,
+      "timeoutSeconds": 120,
+      "inputs": {
+        "FunctionName": "avm-guardduty-invite-member-accounts",
+        "Payload": "{\"AccountId\": {{AccountId}} }"
+      },
+      "nextStep": "App_update_s3_core_logging_bucket_policies"
+    },
+    {
+      "name": "App_update_s3_core_logging_bucket_policies",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Continue",
+      "maxAttempts": 3,
+      "timeoutSeconds": 120,
+      "inputs": {
+        "FunctionName": "avm-s3-update-corelogging-bucket-policies",
+        "Payload": "{\"AccountId\": {{AccountId}} }"
+      },
+      "nextStep": "App_update_cw_destination_policy"
+    },
+    {
+      "name": "App_update_cw_destination_policy",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Continue",
+      "maxAttempts": 3,
+      "timeoutSeconds": 120,
+      "inputs": {
+        "FunctionName": "avm-update-cw-destination-policy",
+        "Payload": "{\"AccountId\": {{AccountId}} }"
+      },
+      "nextStep": "App_create_git_repos"
+    },
+    {
+      "name": "App_create_git_repos",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Continue",
+      "maxAttempts": 3,
+      "timeoutSeconds": 120,
+      "inputs": {
+        "FunctionName": "avm-create-gitrepos",
+        "Payload": "{\"AccountId\": {{AccountId}}, \"AdditionalInfo\": \"{{AdditionalInfo}}\"}"
+      },
+      "nextStep": "App_create_tfe_workspaces"
+    },
+    {
+      "name": "App_create_tfe_workspaces",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Continue",
+      "maxAttempts": 3,
+      "timeoutSeconds": 120,
+      "inputs": {
+        "FunctionName": "avm-tfe-create-workspaces",
+        "Payload": "{\"AccountId\": {{AccountId}} }"
+      },
+      "nextStep": "App_invoke_tfe_baseline"
+    },
+    {
+      "name": "App_invoke_tfe_baseline",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Continue",
+      "maxAttempts": 2,
+      "timeoutSeconds": 600,
+      "inputs": {
+        "FunctionName": "avm-tfe-createbaseline",
+        "Payload": "{\"AccountId\": {{AccountId}}  }"
+      },
+      "nextStep": "App_dns_invite_member_account_vpcs"
+    },
+    {
+      "name": "App_dns_invite_member_account_vpcs",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Continue",
+      "maxAttempts": 3,
+      "timeoutSeconds": 120,
+      "inputs": {
+        "FunctionName": "avm-dns-invite-member-account-vpcs",
+        "Payload": "{\"AccountId\": {{AccountId}} , \"AccountType\": {{AccountType}}  }"
+      },
+      "nextStep": "App_register_with_redlock"
+    },
+    {
+      "name": "App_register_with_redlock",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Continue",
+      "maxAttempts": 3,
+      "timeoutSeconds": 120,
+      "inputs": {
+        "FunctionName": "avm-3rdparty-redlock-addaccount",
+        "Payload": "{\"AccountId\": {{AccountId}} }"
+      },
+      "nextStep": "App_send_end_of_accountpipeline_notification"
+    },
+    {
+      "name": "App_send_end_of_accountpipeline_notification",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Continue",
+      "maxAttempts": 3,
+      "timeoutSeconds": 120,
+      "inputs": {
+        "FunctionName": "avm-sns-post-account-creation-email",
+        "Payload": "{\"AccountId\": {{AccountId}} }"
+      },
+      "nextStep": "App_tfe_rotate_credentials"
+    },
+    {
+      "name": "App_tfe_rotate_credentials",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Continue",
+      "maxAttempts": "3",
+      "timeoutSeconds": "120",
+      "inputs": {
+        "FunctionName": "avm-tfe-secret-rotation",
+        "Payload": "{\"AccountId\": {{AccountId}} }"
+      },
+      "nextStep": "validate_previous_steps"
+    },
+    {
+      "name": "validate_previous_steps",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Continue",
+      "maxAttempts": 3,
+      "timeoutSeconds": 120,
+      "inputs": {
+        "FunctionName": "avm-ssm-validate-doc-status",
+        "Payload":  "{\"AccountId\": {{AccountId}}, \"execution_id\" :  \"{{automation:EXECUTION_ID}}\"}"
+      },
+      "isEnd": true
+    }
+  ]
+}
